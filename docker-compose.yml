@@ -1,0 +1,41 @@
+services:
+  postgres:
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    image: postgres:11.22-alpine@sha256:33a78858869c44785eee197a60cf281c5c80376bb725992f092ec5e7e072f3de
+    container_name: breuvage_database
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  pgadmin:
+    image: dpage/pgadmin4@sha256:00998d19a230b66e30de4bc00a2c453b07c63016dc15e58d6f6b4fa3c688d4e5
+    depends_on:
+      - postgres
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=pgadmin@pgadmin.com
+      - PGADMIN_DEFAULT_PASSWORD=pgadmin
+    volumes:
+       - ./pgadmin.local.json:/pgadmin4/servers.json
+    ports:
+      - "4444:80"
+
+  backend:
+    build: .
+    container_name: breuvage_backend
+    depends_on:
+      - postgres
+    volumes:
+      - ./src:/app/src/
+    ports:
+      - "4000:4000"
+    command: >
+      bash -c "cd /app/src && mix deps.get && mix phx.server"
+    env_file:
+      - .env
