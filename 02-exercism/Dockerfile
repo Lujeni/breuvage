@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-RUN apk add --no-cache curl tar
+RUN apk add --no-cache curl tar elixir
 WORKDIR /usr/src/app
 RUN curl -L -o exercism.tar.gz https://github.com/exercism/cli/releases/download/v3.3.0/exercism-3.3.0-linux-x86_64.tar.gz
 
@@ -16,5 +16,5 @@ RUN mkdir workspaces
 COPY entrypoint.sh entrypoint.sh
 RUN chmod +x entrypoint.sh
 
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["sh", "/usr/src/app/entrypoint.sh"]
 CMD ["exercism", "version"]
